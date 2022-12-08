@@ -1,12 +1,11 @@
+use serde::Deserialize;
 
 // 媒体日志的行为
-pub(crate) enum MediaAc {
-    SHOW=1,             // 展示
-    CLICK=2,            // 广告点击
-    LOOK_AND_CLICK=3,   // 播放点击 （有效播放视频播放 5s 示为触发一次点击）
-    LOOK=4,             // 视频查看
-    LOOK_COMPLETE=5     // 视频播放完成
-}
+pub const SHOW:i8 = 1;// 展示
+pub const CLICK:i8 = 2 ; // 广告点击
+pub const LOOK_AND_CLICK:i8 = 3;// 播放点击 （有效播放视频播放 5s 示为触发一次点击）
+pub const LOOK:i8 = 4;// 视频查看
+pub const LOOK_COMPLETE:i8 = 5;  // 视频播放完成
 
 pub trait Media {
     type RS;
@@ -42,4 +41,5 @@ pub struct MediaReport<'a> {
     pub keys:&'a str,         // 加密秘钥
     pub bd_id:&'a str,        // 设备合一ID
     pub req_id:&'a str,       // 请求ID
+    pub conv_time:i64         // 转化时间
 }
