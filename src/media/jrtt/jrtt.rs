@@ -24,6 +24,7 @@ impl <'a> Media for Jrtt<'a>{
       */
     fn report_active(&self) -> Result<Self::RS, Self::Err> {
         println!("{} {}",self.0.action,self.0.akey);
+        let url = reqwest::Url::from();
         Ok(())
     }
 
@@ -47,5 +48,6 @@ impl <'a> Media for Jrtt<'a>{
 #[get("/media/api/jrtt")]
 pub async fn jrtt(reg:web::Query<Info>) -> impl Responder {
     println!("{:?}",reg.name);
+    println!("「」{} {}",reg.model,reg.adt_cid);
     HttpResponse::Ok().body("I am Jrtt!")
 }
