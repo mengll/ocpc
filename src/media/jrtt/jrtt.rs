@@ -7,12 +7,14 @@
 */
 
 use actix_web::{get, HttpRequest, HttpResponse, Responder, web};
+use redis::RedisResult;
 use reqwest::Client;
 use time::macros::date;
 use crate::media::common::media::{Media, MediaReport};
 use crate::media::jrtt::model::{getOs, Info};
 use time::OffsetDateTime;
 use   serde::Serialize;
+use crate::media::common::redis::MyRedis;
 
 #[derive(Serialize)]
 struct Params {
@@ -81,7 +83,17 @@ pub async fn jrtt(reg:web::Query<Info>) -> impl Responder {
     let t = OffsetDateTime::now_utc().unix_timestamp();
     println!("i am get time! {}",t);
     // 数据标准化 流入mq 进入下一步数据流转
+    let mut redis = MyRedis::new();
+    let req_id  = reg.req_id.as_ref();
+    redis.set_cache(req_id,1);
+    let dat:RedisResult<String> = redis.get_cache(req_id.unwrap());
+    // 判断是否已经存在
+    let exists = redis.exists_cache(req_id.unwrap());
+    println!("exists: {}",exists);
 
+    if let Ok(s) = dat {
+        println!("{}",s)
+    }
     match reg.os {
         1=>{
             // ios 数据使用全平台数据匹配
@@ -90,7 +102,5 @@ pub async fn jrtt(reg:web::Query<Info>) -> impl Responder {
             // 安卓或wp 使用媒体单独的匹配接口
         }
     }
-
-
     HttpResponse::Ok().body("I am Jrtt!")
 }

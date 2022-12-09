@@ -13,4 +13,4 @@ futures = "0.3"
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 time = { version = "0.3", features = ["macros"] }
-redis = "0.22.1"
+redis = "0.21.4"
