@@ -15,6 +15,7 @@ use crate::media::jrtt::model::{getOs, Info};
 use time::OffsetDateTime;
 use   serde::Serialize;
 use crate::media::common::redis::MyRedis;
+use crate::media::jrtt::{MatchData, MatchFn};
 
 #[derive(Serialize)]
 struct Params {
@@ -82,25 +83,86 @@ pub async fn jrtt(reg:web::Query<Info>) -> impl Responder {
     println!("os={}",getOs(reg.os));
     let t = OffsetDateTime::now_utc().unix_timestamp();
     println!("i am get time! {}",t);
+
     // 数据标准化 流入mq 进入下一步数据流转
     let mut redis = MyRedis::new();
     let req_id  = reg.req_id.as_ref();
     redis.set_cache(req_id,1);
     let dat:RedisResult<String> = redis.get_cache(req_id.unwrap());
+
     // 判断是否已经存在
     let exists = redis.exists_cache(req_id.unwrap());
     println!("exists: {}",exists);
-
     if let Ok(s) = dat {
         println!("{}",s)
     }
+
+    let imei_md5 = reg.imei_md5.as_ref().unwrap().as_str();
+    let bd_id = reg.bd_id.as_ref().unwrap().as_str();
+    let oaid_md5 = reg.oaid_md5.as_ref().unwrap().as_str();
+    let ip = reg.ip.as_ref().unwrap().as_str();
+    let match_data = MatchData{
+        game_id: reg.game_id.unwrap(),
+        muid: None,
+        imei_md5: Some(imei_md5),
+        bd_id: Some(bd_id),
+        oaid_md5: Some(oaid_md5),
+        ip: Some(ip),
+        caid_str: None
+    };
+
     match reg.os {
         1=>{
             // ios 数据使用全平台数据匹配
+            let res = {
+                if match_muid(match_data)  {
+                    return ()
+                }
+
+                if match_ip(match_data) {
+                    return ()
+                }
+            };
         }
         _=>{
-            // 安卓或wp 使用媒体单独的匹配接口
+            // 安卓匹配
+            let res = {
+                if match_oaid(match_data) {
+                    // 匹配到的结果，返回
+                    return ()
+                }
+                if match_muid(match_data){
+                    // 匹配到IMEI信息返回
+                    return ()
+                }
+
+                // 匹配IP的时候信息需要数据维度更低 减少不必要的误差
+                if match_ip(match_data){
+                    return ()
+                }
+            };
         }
     }
     HttpResponse::Ok().body("I am Jrtt!")
+}
+
+// 匹配oaid
+fn match_oaid(m:MatchData)->bool{
+
+    true
+}
+
+// 匹配imei
+fn match_muid(m:MatchData)->bool{
+    true
+}
+
+// 模糊匹配 匹配IP信息
+fn match_ip(m:MatchData)->bool {
+    true
+}
+
+// 匹配caid
+fn match_caid(m:MatchData)->bool {
+    false
 }
