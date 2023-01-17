@@ -34,7 +34,7 @@ impl <'a> Media for Jrtt<'a>{
        @author mll
       */
     fn report_active(&self) -> Result<Self::RS, Self::Err> {
-        println!("{} {}",self.0.action,self.0.akey);
+        println!("{} {:?}",self.0.action,self.0.akey);
         self.tt_get(0);
         Ok(())
     }
@@ -65,7 +65,7 @@ impl Jrtt<'_> {
     fn tt_get(&self,ac:i8){
         let client = Client::new();
         let some_url = self.0.callback_url;
-        let r = client.get(some_url);
+        let r = client.get(some_url.unwrap());
         let params = Params {
             event_type: ac,
             conv_time:self.0.conv_time,
@@ -111,16 +111,17 @@ pub async fn jrtt(reg:web::Query<Info>) -> impl Responder {
         caid_str: None
     };
 
+    // 介绍数据
     match reg.os {
         1=>{
             // ios 数据使用全平台数据匹配
             let res = {
                 if match_muid(match_data)  {
-                    return ()
+                    return   HttpResponse::Ok().body("I am Jrtt!")
                 }
-
+            // 模糊匹配
                 if match_ip(match_data) {
-                    return ()
+                    return   HttpResponse::Ok().body("I am Jrtt!")
                 }
             };
         }
@@ -129,16 +130,16 @@ pub async fn jrtt(reg:web::Query<Info>) -> impl Responder {
             let res = {
                 if match_oaid(match_data) {
                     // 匹配到的结果，返回
-                    return ()
+                    return   HttpResponse::Ok().body("I am Jrtt!")
                 }
                 if match_muid(match_data){
                     // 匹配到IMEI信息返回
-                    return ()
+                    return   HttpResponse::Ok().body("I am Jrtt!")
                 }
 
                 // 匹配IP的时候信息需要数据维度更低 减少不必要的误差
                 if match_ip(match_data){
-                    return ()
+                    return   HttpResponse::Ok().body("I am Jrtt!")
                 }
             };
         }
@@ -148,7 +149,6 @@ pub async fn jrtt(reg:web::Query<Info>) -> impl Responder {
 
 // 匹配oaid
 fn match_oaid(m:MatchData)->bool{
-
     true
 }
 

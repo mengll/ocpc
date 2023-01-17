@@ -18,7 +18,7 @@ impl <'a> Media for Jrtt<'a>{
       @author mll
      */
     fn report_active(&self) -> Result<Self::RS, Self::Err> {
-        println!("{} {}",self.0.action,self.0.akey);
+        println!("{} {:?}",self.0.action,self.0.akey);
         Ok(())
     }
 

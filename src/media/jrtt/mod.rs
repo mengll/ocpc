@@ -3,7 +3,7 @@ use crate::media::common::media::MediaReport;
 pub mod jrtt;
 pub mod model;
 
-#[derive(Debug,Copy)]
+#[derive(Debug,Copy,Clone)]
 struct MatchData<'a> {
     game_id:i32,               // 游戏包ID
     muid:Option<&'a str>,      // 媒体设备识别
